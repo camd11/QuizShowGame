@@ -30,7 +30,7 @@
    # backend/.env
    PORT=3001
    NODE_ENV=development
-   OPENAI_API_KEY=your_api_key_here
+   OPENAI_API_KEY=your_api_key_here  # Required for LLM question generation
    ```
 
    Frontend (.env):
@@ -41,8 +41,12 @@
 
 3. Install dependencies
    ```bash
+   # Install shared dependencies
+   cd shared
+   npm install
+
    # Install backend dependencies
-   cd backend
+   cd ../backend
    npm install
 
    # Install frontend dependencies
@@ -58,6 +62,9 @@
    npm run dev
    ```
    The server will start on http://localhost:3001
+   - Provides question generation API
+   - Uses LLM for You Don't Know Jack style questions
+   - Includes fallback questions if API fails
 
 2. Start the frontend development server
    ```bash
@@ -65,6 +72,26 @@
    npm start
    ```
    The development server will start on http://localhost:3000
+   - Displays the quiz game interface
+   - Shows 5 questions with 30-second timer each
+   - Tracks score (1000 points per correct answer)
+
+## Game Features
+
+### Core Functionality
+- 5 questions per game
+- 30-second timer per question
+- Score tracking (1000 points per correct answer)
+- Loading states with spinner
+- Error handling with fallback questions
+- Game over screen with final score
+
+### Question Generation
+- LLM-powered questions in You Don't Know Jack style
+- 4 options per question
+- One correct answer
+- Optional explanation for correct answers
+- Fallback questions if API fails
 
 ## Common Issues and Solutions
 
@@ -77,7 +104,7 @@
    Solution:
    - Check tsconfig.json paths configuration
    - Verify file exists in the correct location
-   - Run `npm install` to update dependencies
+   - Run `npm install` in shared directory first
 
 2. Port Already in Use
    ```
@@ -87,13 +114,23 @@
    - Kill the process using the port:
      ```bash
      # On Linux/Mac
-     lsof -i :3001
-     kill -9 <PID>
+     killall node    # Stops all Node.js processes
+     # OR more specifically for the backend:
+     killall -9 ts-node
      
      # On Windows
      netstat -ano | findstr :3001
      taskkill /PID <PID> /F
      ```
+
+3. OpenAI API Key Issues
+   ```
+   Error: Invalid API key provided
+   ```
+   Solution:
+   - Verify OPENAI_API_KEY in backend/.env
+   - Check API key permissions
+   - Game will use fallback questions if API fails
 
 ### Frontend Issues
 
@@ -139,26 +176,20 @@
    }
    ```
 
-## Git Workflow
-
-1. Create a new branch for your feature
-   ```bash
-   git checkout -b feature/your-feature-name
-   ```
-
-2. Make your changes and commit
-   ```bash
-   git add .
-   git commit -m "feat: your feature description"
-   ```
-
-3. Push your changes
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
 ## Testing
 
+### Manual Testing
+1. Start both servers (backend and frontend)
+2. Navigate to http://localhost:3000
+3. Verify:
+   - Questions load properly
+   - Timer counts down from 30 seconds
+   - Score updates for correct answers
+   - Game progresses through 5 questions
+   - Game over screen shows final score
+   - Error states work when backend is down
+
+### Automated Testing (To Be Implemented)
 1. Run frontend tests
    ```bash
    cd frontend
@@ -189,7 +220,7 @@
 
 1. Clear all dependencies and reinstall
    ```bash
-   # In both frontend and backend directories
+   # In shared, frontend, and backend directories
    rm -rf node_modules
    rm package-lock.json
    npm install
@@ -240,3 +271,4 @@
 - [React Documentation](https://reactjs.org/docs/getting-started.html)
 - [Express Documentation](https://expressjs.com/)
 - [CSS Modules Documentation](https://github.com/css-modules/css-modules)
+- [OpenAI API Documentation](https://platform.openai.com/docs/)

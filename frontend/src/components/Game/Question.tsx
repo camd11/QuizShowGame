@@ -1,21 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Question as QuestionType, PlayerAnswer } from '../../types/game';
 import styles from './Question.module.css';
 
 interface QuestionProps {
   question: QuestionType;
   onAnswer: (answer: PlayerAnswer) => void;
-  timeLimit?: number; // in seconds
+  timeLimit?: number;
 }
 
-const Question: React.FC<QuestionProps> = ({ 
-  question, 
-  onAnswer, 
-  timeLimit = 30 
-}) => {
+const Question: React.FC<QuestionProps> = ({ question, onAnswer, timeLimit = 30 }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [startTime] = useState(Date.now());
+
+  const handleAnswer = useCallback((optionIndex: number) => {
+    const timeToAnswer = (Date.now() - startTime) / 1000;
+    const answer: PlayerAnswer = {
+      questionId: question.id,
+      selectedOption: optionIndex,
+      isCorrect: optionIndex === question.correctAnswer,
+      timeToAnswer
+    };
+    onAnswer(answer);
+  }, [question.id, question.correctAnswer, startTime, onAnswer]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -32,18 +39,7 @@ const Question: React.FC<QuestionProps> = ({
     }, 1000);
 
     return () => clearInterval(timer);
-  }, []);
-
-  const handleAnswer = (optionIndex: number) => {
-    const timeToAnswer = (Date.now() - startTime) / 1000;
-    const answer: PlayerAnswer = {
-      questionId: question.id,
-      selectedOption: optionIndex,
-      isCorrect: optionIndex === question.correctAnswer,
-      timeToAnswer
-    };
-    onAnswer(answer);
-  };
+  }, [handleAnswer, selectedOption]);
 
   return (
     <div className={styles.question}>

@@ -1,16 +1,27 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import express, { Request, Response } from 'express';
-import { AIClient } from '../shared/api_config';
+import { AIClient } from '@shared/api_config';
 import cors from 'cors';
 import path from 'path';
 
 const app = express();
 const port = process.env.PORT || 3001;
 
-// Initialize AI client
-const aiClient = new AIClient('quiz-game');
-
 app.use(cors());
 app.use(express.json());
+
+// Initialize AI client
+let aiClient: AIClient;
+(async () => {
+  try {
+    aiClient = await AIClient.create('quiz-game');
+  } catch (error) {
+    console.error('Failed to initialize AI client:', error);
+    process.exit(1);
+  }
+})();
 
 interface QuestionFormat {
   text: string;
@@ -19,17 +30,14 @@ interface QuestionFormat {
   explanation: string;
 }
 
-interface Message {
-  role: string;
-  content: string;
-}
+import { Message } from '@shared/api_config';
 
 app.post('/api/generate-question', async (req: Request, res: Response) => {
   try {
     const { systemPrompt } = req.body;
 
     const prompt: Message = {
-      role: "user",
+      role: 'user' as const,
       content: "Generate a quiz show question in JSON format with the following structure: " +
         "{\n" +
         '  "text": "the question text",\n' +
@@ -41,7 +49,7 @@ app.post('/api/generate-question', async (req: Request, res: Response) => {
     };
 
     const messages: Message[] = [
-      { role: "system", content: systemPrompt },
+      { role: 'system' as const, content: systemPrompt },
       prompt
     ];
 
