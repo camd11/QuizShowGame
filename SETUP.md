@@ -89,6 +89,8 @@
 - 5 questions per game
 - 30-second timer per question
 - Score tracking (1000 points per correct answer)
+- Answer explanations with 6-second display
+- Smooth transitions between questions
 - Loading states with spinner
 - Error handling with user feedback
 - Game over screen with final score
@@ -203,6 +205,8 @@
    - Questions load properly
    - Timer counts down from 30 seconds
    - Score updates for correct answers
+   - Answer explanations display for 6 seconds
+   - Smooth transitions between questions
    - Game progresses through 5 questions
    - Game over screen shows final score
    - Error states show user-friendly messages
@@ -285,6 +289,8 @@
    - Use CSS Modules
    - Follow BEM naming convention
    - Use variables for colors and spacing
+   - Use cubic-bezier for smooth animations
+   - Implement proper transition timing
 
 4. Git Commits
    - Follow conventional commits format

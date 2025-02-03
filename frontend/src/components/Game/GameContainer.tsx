@@ -68,13 +68,11 @@ const GameContainer: React.FC = () => {
 
   const handleAnswer = useCallback((answer: PlayerAnswer) => {
     setGameState(prev => {
-      const newScore = prev.score + (answer.isCorrect ? 1000 : 0);
       const isLastQuestion = prev.currentQuestion === prev.questions.length - 1;
-      
       return {
         ...prev,
         currentQuestion: isLastQuestion ? prev.currentQuestion : prev.currentQuestion + 1,
-        score: newScore,
+        score: prev.score + (answer.isCorrect ? 1000 : 0),
         isGameOver: isLastQuestion
       };
     });

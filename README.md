@@ -7,6 +7,8 @@ A multiplayer quiz show game in the style of You Don't Know Jack, using LLM for 
 ### Core Game Features
 - 5 questions per game with 30-second timer per question
 - Score tracking (1000 points per correct answer)
+- Answer explanations with 6-second display time
+- Smooth transitions between questions with animations
 - Loading states with spinner animation
 - Error handling with user-friendly messages
 - Game over screen with final score
@@ -38,8 +40,8 @@ A multiplayer quiz show game in the style of You Don't Know Jack, using LLM for 
 │   │   │   ├── LoadingSpinner/ (Loading state components)
 │   │   │   └── Game/
 │   │   │       ├── GameContainer.tsx (Game logic and state)
-│   │   │       ├── Question.tsx (Question display and timer)
-│   │   │       └── Question.module.css (Question styling)
+│   │   │       ├── Question.tsx (Question display and transitions)
+│   │   │       └── Question.module.css (Question and animation styling)
 │   │   ├── services/
 │   │   │   └── questionService.ts (Question generation API)
 │   │   └── types/
@@ -117,6 +119,8 @@ npm start
 ✅ Error boundaries
 ✅ Timer functionality
 ✅ Score tracking
+✅ Answer explanations with animations
+✅ Smooth question transitions
 ✅ Responsive design
 
 ### Shared
