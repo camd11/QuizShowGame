@@ -15,6 +15,12 @@ A multiplayer quiz show game in the style of You Don't Know Jack, using LLM for 
 ### Question Generation
 - LLM-powered questions in You Don't Know Jack style
 - 4 options per question with one correct answer
+- Questions from diverse categories:
+  - History/Politics
+  - Science/Nature
+  - Pop Culture/Entertainment
+  - Sports/Games
+  - Technology/Innovation
 - Witty explanations for correct answers
 - Dynamic content generation through OpenRouter API
 
@@ -98,6 +104,7 @@ npm start
 ### Backend
 ✅ Express server with TypeScript
 ✅ OpenRouter API integration for question generation
+✅ Question caching with game session management
 ✅ Proper error handling and validation
 ✅ Environment variable configuration
 ✅ CORS enabled for local development
@@ -110,73 +117,18 @@ npm start
 ✅ Error boundaries
 ✅ Timer functionality
 ✅ Score tracking
+✅ Responsive design
 
 ### Shared
 ✅ TypeScript implementation of API client
 ✅ Shared type definitions
 ✅ API configuration
 
-## Upcoming Features
-
-1. Enhanced Game Features:
-   - Time-based scoring system
-   - Sound effects and animations
-   - Question categories
-   - Difficulty levels
-   - Answer explanations
-
-2. Multiplayer Support:
-   - WebSocket server
-   - Room management
-   - Player synchronization
-   - Real-time score updates
-
-3. User Experience:
-   - Keyboard controls
-   - Mobile responsiveness
-   - Progress indicators
-   - Game statistics
-   - Leaderboard
-
-## Development Guidelines
-
-1. TypeScript Best Practices:
-   - Use interfaces over types
-   - Enable strict mode
-   - Proper type annotations
-   - No any types
-
-2. React Guidelines:
-   - Functional components
-   - React hooks for state
-   - Small, focused components
-   - Proper prop types
-
-3. CSS Guidelines:
-   - CSS Modules
-   - BEM naming convention
-   - Variables for colors/spacing
-   - Mobile-first approach
-
-4. Testing Guidelines:
-   - Unit tests for components
-   - Integration tests for API
-   - End-to-end testing
-   - Test coverage reporting
-
-## Environment Requirements
-
-- Node.js 14+
-- npm 6+
-- TypeScript 4+
-- Modern web browser with JavaScript enabled
-- OpenRouter API key
-
 ## API Documentation
 
 ### Question Generation
 ```
-POST /api/generate-question
+POST /api/generate-question?gameId={gameId}
 Content-Type: application/json
 
 Request:
@@ -220,16 +172,6 @@ Response:
    # OR more specifically for the backend:
    killall -9 ts-node
    ```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests
-5. Submit a pull request
-
-See DEVELOPMENT.md for detailed development guidelines and SETUP.md for environment setup instructions.
 
 ## License
 

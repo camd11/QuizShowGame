@@ -17,56 +17,24 @@ Current frontend features:
 4. Loading states with spinner
 5. Error handling with user feedback
 6. Game over screen with final score
+7. Responsive design with CSS Modules
 
 ### Backend Status
 - ✅ Express server with TypeScript
 - ✅ OpenRouter API integration for question generation
 - ✅ LLM integration with system prompts
+- ✅ Question caching with game sessions
 - ✅ CORS configured for development
 - ✅ Environment variables configured
 
 Current backend features:
 1. Question generation with You Don't Know Jack style prompts
-2. Error handling with proper responses
-3. Environment variable configuration
-4. TypeScript path resolution working
+2. Question caching per game session
+3. Error handling with proper responses
+4. Environment variable configuration
+5. TypeScript path resolution working
 
-## Technical Debt
-
-### Frontend
-1. Component Structure:
-   - GameContainer.tsx could be split into smaller components
-   - Game logic could be extracted into custom hooks
-   - Could implement proper state management (Redux/Context)
-
-2. Type Definitions:
-   - All core types are properly defined
-   - Could add more specific error types
-   - Could add stricter type guards
-
-3. Testing:
-   - Need unit tests for components
-   - Need integration tests for API calls
-   - Need end-to-end tests for game flow
-
-### Backend
-1. API Implementation:
-   - ✅ Question generation working
-   - Could add request validation
-   - Could add rate limiting
-   - Could add request/response logging
-
-2. Error Handling:
-   - ✅ Basic error handling implemented
-   - Could add retry logic for API calls
-   - Could add more detailed error logging
-
-3. Configuration:
-   - ✅ Environment variables properly used
-   - ✅ TypeScript paths configured
-   - Could add configuration validation
-
-## Implementation Details
+## Technical Details
 
 ### Game Logic
 ```typescript
@@ -153,6 +121,7 @@ interface QuestionResponse {
    - OpenRouter API generates witty questions
    - Questions follow You Don't Know Jack style
    - 4 options per question with one correct answer
+   - Questions from diverse categories
 
 2. Game Flow:
    - 5 questions per game
@@ -195,14 +164,14 @@ interface QuestionResponse {
 ## Performance Considerations
 
 ### Current Performance
-✅ Quick question loading
+✅ Quick question loading with caching
 ✅ Smooth transitions between questions
 ✅ Responsive UI
 ✅ Proper error states
 ✅ Efficient state updates
 
 ### Potential Optimizations
-1. Implement question caching
+1. Implement question pre-fetching
 2. Add request debouncing
 3. Optimize bundle size
 4. Add performance monitoring

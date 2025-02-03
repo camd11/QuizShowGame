@@ -22,26 +22,49 @@ const GameContainer: React.FC = () => {
     error: null
   });
 
-  useEffect(() => {
-    loadQuestions();
-  }, []);
-
-  const loadQuestions = async () => {
+  const loadQuestions = useCallback(async (signal?: AbortSignal) => {
     try {
-      const questions = await generateQuestionSet(5);
-      setGameState(prev => ({
-        ...prev,
-        questions,
-        loading: false
-      }));
+      // Only start loading if we don't already have questions
+      if (gameState.questions.length === 0) {
+        setGameState(prev => ({
+          ...prev,
+          loading: true,
+          error: null
+        }));
+        
+        const questions = await generateQuestionSet(5);
+        
+        if (!questions || questions.length !== 5) {
+          throw new Error('Failed to load all questions');
+        }
+        
+        // Only update state if the request wasn't aborted
+        if (!signal?.aborted) {
+          setGameState(prev => ({
+            currentQuestion: 0,
+            score: 0,
+            isGameOver: false,
+            questions,
+            loading: false,
+            error: null
+          }));
+        }
+      }
     } catch (error) {
+      console.error('Error loading questions:', error);
       setGameState(prev => ({
         ...prev,
         error: 'Failed to load questions. Please try again.',
         loading: false
       }));
     }
-  };
+  }, [gameState.questions.length]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    loadQuestions(controller.signal);
+    return () => controller.abort();
+  }, [loadQuestions]);
 
   const handleAnswer = useCallback((answer: PlayerAnswer) => {
     setGameState(prev => {
@@ -126,6 +149,5 @@ const GameContainer: React.FC = () => {
     </ErrorBoundary>
   );
 };
-
 
 export default GameContainer;

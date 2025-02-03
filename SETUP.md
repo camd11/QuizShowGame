@@ -70,6 +70,7 @@
    - Provides question generation API
    - Uses OpenRouter API for You Don't Know Jack style questions
    - Requires valid API key for operation
+   - Implements question caching per game session
 
 2. Start the frontend development server
    ```bash
@@ -80,6 +81,7 @@
    - Displays the quiz game interface
    - Shows 5 questions with 30-second timer each
    - Tracks score (1000 points per correct answer)
+   - Handles loading and error states
 
 ## Game Features
 
@@ -95,6 +97,12 @@
 - LLM-powered questions in You Don't Know Jack style
 - 4 options per question
 - One correct answer
+- Questions from diverse categories:
+  - History/Politics
+  - Science/Nature
+  - Pop Culture/Entertainment
+  - Sports/Games
+  - Technology/Innovation
 - Witty explanations for correct answers
 - Dynamic content through OpenRouter API
 
@@ -181,8 +189,16 @@
 ## Testing
 
 ### Manual Testing
-1. Start both servers (backend and frontend)
-2. Navigate to http://localhost:3000
+1. Kill any existing Node.js processes:
+   ```bash
+   # On Linux/Mac
+   killall node    # Stops all Node.js processes
+   # OR more specifically:
+   killall -9 ts-node
+   ```
+
+2. Start both servers (backend and frontend)
+3. Navigate to http://localhost:3000
 3. Verify:
    - Questions load properly
    - Timer counts down from 30 seconds
@@ -192,13 +208,21 @@
    - Error states show user-friendly messages
 
 ### Automated Testing (To Be Implemented)
-1. Run frontend tests
+1. Kill any existing Node.js processes:
+   ```bash
+   # On Linux/Mac
+   killall node    # Stops all Node.js processes
+   # OR more specifically:
+   killall -9 ts-node
+   ```
+
+2. Run frontend tests:
    ```bash
    cd frontend
    npm test
    ```
 
-2. Run backend tests
+3. Run backend tests:
    ```bash
    cd backend
    npm test
@@ -267,11 +291,3 @@
    - Keep commits small and focused
    - Write clear commit messages
    - Never commit API keys or sensitive data
-
-## Additional Resources
-
-- [TypeScript Documentation](https://www.typescriptlang.org/docs/)
-- [React Documentation](https://reactjs.org/docs/getting-started.html)
-- [Express Documentation](https://expressjs.com/)
-- [CSS Modules Documentation](https://github.com/css-modules/css-modules)
-- [OpenRouter Documentation](https://openrouter.ai/docs)
