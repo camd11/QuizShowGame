@@ -1,91 +1,135 @@
+import OpenAI from "openai";
+import fs from 'fs/promises';
+import path from 'path';
+
 export interface Message {
-  role: string;
+  role: 'system' | 'user' | 'assistant';
   content: string;
 }
 
+interface ConversationEntry {
+  module: string;
+  timestamp: string;
+  messages: Message[];
+  response: string;
+}
+
+interface MasterLog {
+  project_start_time: string;
+  conversations: {
+    [key: string]: ConversationEntry[];
+  };
+}
+
 export class AIClient {
-  private client: any;
-  private logger: any;
-  private extraHeaders: { [key: string]: string };
+  private client: OpenAI;
   private conversationHistory: { [key: string]: Message[] };
   private conversationLogDir: string;
   private masterLogPath: string;
-  private masterLog: any;
   private moduleName: string;
+  private masterLog!: MasterLog;
 
-  constructor(moduleName: string) {
-    this.client = {
-      chat: {
-        completions: {
-          create: async (params: any) => {
-            // Mock implementation for now
-            const response = {
-              choices: [
-                {
-                  message: {
-                    content: JSON.stringify({
-                      text: "What is the capital of France?",
-                      options: ["London", "Berlin", "Paris", "Madrid"],
-                      correctAnswer: 2,
-                      explanation: "Paris is the capital and largest city of France."
-                    })
-                  }
-                }
-              ]
-            };
-            return response;
-          }
-        }
+  static async create(moduleName: string): Promise<AIClient> {
+    const client = new AIClient(moduleName);
+    await client.initialize();
+    return client;
+  }
+
+  private constructor(moduleName: string) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY environment variable is required');
+    }
+
+    this.client = new OpenAI({
+      baseURL: "https://openrouter.ai/api/v1",
+      apiKey: apiKey,
+      defaultHeaders: {
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "Quiz-Show-Game"
       }
-    };
+    });
 
     this.moduleName = moduleName;
-    this.extraHeaders = {
-      "HTTP-Referer": "http://localhost",
-      "X-Title": "Quiz-Show-Game",
-    };
     this.conversationHistory = {};
     this.conversationLogDir = 'logs/conversations';
     this.masterLogPath = 'logs/master_conversation_log.json';
-    this.masterLog = this._loadOrCreateMasterLog();
   }
 
-  private _loadOrCreateMasterLog() {
-    return {
-      project_start_time: new Date().toISOString(),
-      conversations: {}
-    };
+  private async initialize(): Promise<void> {
+    this.masterLog = await this._loadOrCreateMasterLog();
   }
 
-  private _logConversation(conversationId: string, messages: Message[], response: string) {
-    const timestamp = new Date().toISOString();
-    const conversationEntry = {
-      module: this.moduleName,
-      timestamp,
-      messages,
-      response
-    };
-
-    if (!this.masterLog.conversations[conversationId]) {
-      this.masterLog.conversations[conversationId] = [];
+  private async _loadOrCreateMasterLog(): Promise<MasterLog> {
+    try {
+      await fs.mkdir(path.dirname(this.masterLogPath), { recursive: true });
+      try {
+        const data = await fs.readFile(this.masterLogPath, 'utf-8');
+        return JSON.parse(data);
+      } catch (error) {
+        // File doesn't exist or is invalid, create new log
+        const newLog: MasterLog = {
+          project_start_time: new Date().toISOString(),
+          conversations: {}
+        };
+        await fs.writeFile(this.masterLogPath, JSON.stringify(newLog, null, 2));
+        return newLog;
+      }
+    } catch (error) {
+      console.error('Error loading/creating master log:', error);
+      throw error;
     }
-    this.masterLog.conversations[conversationId].push(conversationEntry);
+  }
+
+  private async _logConversation(conversationId: string, messages: Message[], response: string) {
+    try {
+      const timestamp = new Date().toISOString();
+      const conversationEntry: ConversationEntry = {
+        module: this.moduleName,
+        timestamp,
+        messages,
+        response
+      };
+
+      // Ensure conversation log directory exists
+      await fs.mkdir(this.conversationLogDir, { recursive: true });
+
+      // Save individual conversation log
+      const logPath = path.join(
+        this.conversationLogDir,
+        `conversation_${conversationId}_${timestamp.replace(/[:.]/g, '-')}.json`
+      );
+      await fs.writeFile(logPath, JSON.stringify(conversationEntry, null, 2));
+
+      // Update master log
+      if (!this.masterLog.conversations[conversationId]) {
+        this.masterLog.conversations[conversationId] = [];
+      }
+      this.masterLog.conversations[conversationId].push(conversationEntry);
+      await fs.writeFile(this.masterLogPath, JSON.stringify(this.masterLog, null, 2));
+    } catch (error) {
+      console.error('Error logging conversation:', error);
+      throw error;
+    }
   }
 
   async get_completion(messages: Message[], conversationId?: string, temperature: number = 0.7): Promise<string> {
+    if (!Array.isArray(messages) || messages.length === 0) {
+      throw new Error('Messages array must not be empty');
+    }
     try {
       const conversationMessages = conversationId && this.conversationHistory[conversationId] 
         ? [...this.conversationHistory[conversationId], ...messages]
         : messages;
 
       const completion = await this.client.chat.completions.create({
-        extra_headers: this.extraHeaders,
-        model: "deepseek/deepseek-r1",
+        model: "anthropic/claude-3.5-sonnet:beta",
         messages: conversationMessages,
-        temperature
+        temperature,
+        max_tokens: 1000
       });
 
-      const response = completion.choices[0].message.content;
+      const content = completion.choices[0].message.content || '';
 
       if (conversationId) {
         if (!this.conversationHistory[conversationId]) {
@@ -93,17 +137,17 @@ export class AIClient {
         }
         this.conversationHistory[conversationId].push(
           messages[messages.length - 1],
-          { role: "assistant", content: response }
+          { role: "assistant" as const, content }
         );
       }
 
       this._logConversation(
         conversationId || "single_interaction",
         messages,
-        response
+        content
       );
 
-      return response;
+      return content;
 
     } catch (error) {
       console.error('Error getting completion:', error);

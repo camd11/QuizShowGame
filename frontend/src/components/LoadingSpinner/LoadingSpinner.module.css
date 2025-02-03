@@ -1,0 +1,49 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.spinner {
+  border-style: solid;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.small {
+  width: 20px;
+  height: 20px;
+  border-width: 2px;
+  border-color: #007bff transparent #007bff transparent;
+}
+
+.medium {
+  width: 40px;
+  height: 40px;
+  border-width: 3px;
+  border-color: #007bff transparent #007bff transparent;
+}
+
+.large {
+  width: 60px;
+  height: 60px;
+  border-width: 4px;
+  border-color: #007bff transparent #007bff transparent;
+}
+
+.message {
+  margin-top: 1rem;
+  color: #666;
+  font-size: 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

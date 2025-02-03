@@ -5,10 +5,13 @@ node_modules/
 
 # Testing
 /coverage
+**/coverage/
 
 # Production
 /build
 /dist
+**/build/
+**/dist/
 
 # Environment files
 .env
@@ -16,13 +19,18 @@ node_modules/
 .env.development.local
 .env.test.local
 .env.production.local
+**/.env
+**/.env.*
 
 # Logs
-logs
+logs/
+**/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+**/master_conversation_log.json
+**/conversation_*.json
 
 # Editor directories and files
 .idea/
@@ -33,13 +41,16 @@ yarn-error.log*
 
 # TypeScript
 *.tsbuildinfo
+**/*.tsbuildinfo
 
 # Debug
 .debug/
+**/.debug/
 
 # Temporary files
 *.tmp
 *.temp
+*~
 
 # Python
 __pycache__/
@@ -68,8 +79,22 @@ wheels/
 frontend/build/
 frontend/coverage/
 frontend/.env
+frontend/.env.*
+frontend/npm-debug.log*
 
 # Backend specific
 backend/dist/
 backend/logs/
 backend/.env
+backend/.env.*
+backend/npm-debug.log*
+
+# Shared specific
+shared/.env
+shared/.env.*
+shared/logs/
+shared/npm-debug.log*
+
+# Project specific
+**/conversation_history/
+**/master_log.json

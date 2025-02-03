@@ -3,104 +3,105 @@
 ## Current Development Status
 
 ### Frontend Status
-- Basic game UI implemented
-- Question component with timer
-- Score tracking
-- Basic error handling
-- CSS Modules integration
-- TypeScript types defined
+- ✅ Game UI fully implemented with question display, timer, and score tracking
+- ✅ Error boundary implemented with user-friendly error messages
+- ✅ Loading spinner for API calls
+- ✅ CSS Modules for styling
+- ✅ TypeScript types defined and implemented
+- ✅ Proper error handling with retry options
 
-Current frontend issues:
-1. Module resolution errors in build process
-2. Need to implement proper error boundaries
-3. Missing loading states for API calls
-4. CSS modules type declarations need fixing
+Current frontend features:
+1. 5-question game format
+2. 30-second timer per question
+3. Score tracking (1000 points per correct answer)
+4. Loading states with spinner
+5. Error handling with user feedback
+6. Game over screen with final score
 
 ### Backend Status
-- Express server setup with TypeScript
-- Basic API endpoint for question generation
-- Mock LLM integration
-- CORS configured for development
+- ✅ Express server with TypeScript
+- ✅ OpenRouter API integration for question generation
+- ✅ LLM integration with system prompts
+- ✅ CORS configured for development
+- ✅ Environment variables configured
 
-Current backend issues:
-1. TypeScript path resolution needs fixing
-2. Logging system needs proper setup
-3. Environment variables not properly configured
-4. Need to implement proper error handling
+Current backend features:
+1. Question generation with You Don't Know Jack style prompts
+2. Error handling with proper responses
+3. Environment variable configuration
+4. TypeScript path resolution working
 
 ## Technical Debt
 
 ### Frontend
 1. Component Structure:
-   - GameContainer.tsx is handling too many responsibilities
-   - Need to extract game logic into custom hooks
-   - Need to implement proper state management
-   - Missing error boundaries
+   - GameContainer.tsx could be split into smaller components
+   - Game logic could be extracted into custom hooks
+   - Could implement proper state management (Redux/Context)
 
 2. Type Definitions:
-   - Some any types need to be properly typed
-   - Need to add proper type guards
-   - Missing proper error types
+   - All core types are properly defined
+   - Could add more specific error types
+   - Could add stricter type guards
 
 3. Testing:
-   - No unit tests implemented
-   - No integration tests
-   - No end-to-end tests
+   - Need unit tests for components
+   - Need integration tests for API calls
+   - Need end-to-end tests for game flow
 
 ### Backend
 1. API Implementation:
-   - Mock LLM responses need to be replaced with real API calls
-   - Need proper request validation
-   - Missing rate limiting
-   - No request/response logging
+   - ✅ Question generation working
+   - Could add request validation
+   - Could add rate limiting
+   - Could add request/response logging
 
 2. Error Handling:
-   - Basic error handling implemented
-   - Need proper error types
-   - Missing retry logic
-   - Need proper error logging
+   - ✅ Basic error handling implemented
+   - Could add retry logic for API calls
+   - Could add more detailed error logging
 
 3. Configuration:
-   - Hard-coded values need to be moved to environment variables
-   - Missing proper configuration validation
-   - Need proper TypeScript path aliases
+   - ✅ Environment variables properly used
+   - ✅ TypeScript paths configured
+   - Could add configuration validation
 
 ## Implementation Details
 
 ### Game Logic
 ```typescript
-// Current game state structure
+// Game state structure
 interface GameState {
-  currentQuestion: number;
-  score: number;
-  isGameOver: boolean;
+  currentQuestion: number;  // Tracks current question (1-5)
+  score: number;           // 1000 points per correct answer
+  isGameOver: boolean;     // True when all questions answered
 }
 
-// Extended game state with loading and error handling
+// Container state with loading/error handling
 interface GameContainerState extends GameState {
-  questions: QuestionType[];
-  loading: boolean;
-  error: string | null;
+  questions: QuestionType[];  // Array of 5 questions
+  loading: boolean;          // Shows spinner when true
+  error: string | null;      // Shows error message if present
 }
 ```
 
 ### API Integration
 ```typescript
-// Current question format
+// Question format
 interface Question {
-  id: string;
-  text: string;
-  options: string[];
-  correctAnswer: number;
-  explanation?: string;
+  id: string;              // Unique identifier
+  text: string;            // Question text
+  options: string[];       // Array of 4 answer options
+  correctAnswer: number;   // Index of correct answer (0-3)
+  explanation?: string;    // Optional explanation of answer
 }
 
 // API response format
 interface QuestionResponse {
-  text: string;
-  options: string[];
-  correctAnswer: number;
-  explanation: string;
+  text: string;            // LLM-generated question
+  options: string[];       // 4 possible answers
+  correctAnswer: number;   // Correct answer index
+  explanation: string;     // Why the answer is correct
 }
 ```
 
@@ -126,42 +127,55 @@ interface QuestionResponse {
 ## Build and Development Process
 
 ### Development Workflow
-1. Start backend server:
+1. Get OpenRouter API Key:
+   - Sign up at https://openrouter.ai/
+   - Create an API key
+   - Add key to backend/.env
+
+2. Start backend server:
    ```bash
    cd backend
+   npm install
    npm run dev
    ```
+   Server runs on http://localhost:3001
 
-2. Start frontend development server:
+3. Start frontend development server:
    ```bash
    cd frontend
+   npm install
    npm start
    ```
+   Application runs on http://localhost:3000
 
-3. Access the application:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:3001
+### Verified Features
+1. Question Generation:
+   - OpenRouter API generates witty questions
+   - Questions follow You Don't Know Jack style
+   - 4 options per question with one correct answer
 
-### Current Build Issues
-1. Frontend:
-   ```
-   Module not found: Error: Can't resolve './App' in '/frontend/src'
-   ```
-   Potential fixes:
-   - Check file extensions (.tsx vs .ts)
-   - Verify import paths
-   - Check TypeScript configuration
+2. Game Flow:
+   - 5 questions per game
+   - 30-second timer per question
+   - Score tracking (1000 points per correct)
+   - Game over screen with final score
 
-2. Backend:
-   ```
-   File '/shared/api_config.ts' is not under 'rootDir'
-   ```
-   Potential fixes:
-   - Update tsconfig.json rootDir
-   - Configure proper path aliases
-   - Move shared code to appropriate location
+3. Error Handling:
+   - Loading states with spinner
+   - Error messages for API failures
+   - User-friendly error messages
+   - Error boundary for component errors
 
 ## Testing Strategy
+
+### Manual Testing Completed
+✅ Core game flow
+✅ Score calculation
+✅ Timer functionality
+✅ Error handling
+✅ Loading states
+✅ Question generation
+✅ Game completion
 
 ### Unit Tests (To Be Implemented)
 - Component testing with React Testing Library
@@ -180,31 +194,32 @@ interface QuestionResponse {
 
 ## Performance Considerations
 
-### Current Performance Issues
-1. No caching implemented
-2. No request debouncing
-3. No response memoization
-4. Large bundle size
+### Current Performance
+✅ Quick question loading
+✅ Smooth transitions between questions
+✅ Responsive UI
+✅ Proper error states
+✅ Efficient state updates
 
-### Planned Optimizations
-1. Implement proper code splitting
-2. Add request caching
+### Potential Optimizations
+1. Implement question caching
+2. Add request debouncing
 3. Optimize bundle size
 4. Add performance monitoring
 
 ## Security Considerations
 
-### Current Security Issues
-1. No input sanitization
-2. No rate limiting
-3. No API key rotation
-4. No proper error message sanitization
+### Current Security Measures
+✅ Environment variables for API keys
+✅ CORS configured properly
+✅ Basic error message sanitization
+✅ API keys properly gitignored
 
-### Planned Security Improvements
-1. Implement proper input validation
-2. Add rate limiting
-3. Implement API key rotation
-4. Add proper error handling
+### Recommended Security Improvements
+1. Add input validation
+2. Implement rate limiting
+3. Add API key rotation
+4. Enhance error handling
 
 ## Deployment Considerations
 
@@ -213,7 +228,7 @@ interface QuestionResponse {
 # Backend
 PORT=3001
 NODE_ENV=development
-OPENAI_API_KEY=your_api_key
+OPENAI_API_KEY=your_openrouter_api_key  # Required for question generation
 
 # Frontend
 REACT_APP_API_URL=http://localhost:3001
@@ -233,9 +248,40 @@ REACT_APP_API_URL=http://localhost:3001
    ```
 
 ### Deployment Checklist
-- [ ] Environment variables configured
+- [ ] OpenRouter API key configured
+- [ ] Environment variables set
 - [ ] Build process verified
 - [ ] API endpoints configured
 - [ ] CORS settings updated
 - [ ] Error logging configured
 - [ ] Performance monitoring setup
+
+## API Troubleshooting
+
+### Common Issues
+
+1. API Key Not Working:
+   ```
+   Error: Failed to generate question
+   ```
+   Solutions:
+   - Verify OPENAI_API_KEY in backend/.env
+   - Check API key permissions on OpenRouter
+   - Ensure API key is properly formatted
+
+2. Server Port Issues:
+   ```
+   Error: listen EADDRINUSE: address already in use :::3001
+   ```
+   Solution:
+   ```bash
+   # On Linux/Mac
+   killall node    # Stops all Node.js processes
+   # OR more specifically:
+   killall -9 ts-node
+   ```
+
+3. API Response Format:
+   - Ensure system prompt follows You Don't Know Jack style
+   - Validate response contains all required fields
+   - Check question format matches expected schema

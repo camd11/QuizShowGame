@@ -27,9 +27,13 @@ def setup_logging(module_name):
 
 class AIClient:
     def __init__(self, module_name):
+        api_key = os.getenv('OPENAI_API_KEY')
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable is required")
+            
         self.client = OpenAI(
             base_url="https://openrouter.ai/api/v1",
-            api_key="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"
+            api_key=api_key
         )
         self.logger = setup_logging(module_name)
         self.extra_headers = {

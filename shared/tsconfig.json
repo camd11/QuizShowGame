@@ -3,22 +3,21 @@
     "target": "es6",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "..",
+    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "baseUrl": "..",
+    "declaration": true,
+    "baseUrl": ".",
     "paths": {
-      "@shared/*": ["shared/*"],
-      "*": ["node_modules/*", "shared/*"]
+      "*": ["node_modules/*"]
     }
   },
   "include": [
-    "**/*",
-    "../shared/**/*"
+    "**/*"
   ],
   "exclude": [
     "node_modules",

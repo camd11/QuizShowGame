@@ -1,12 +1,15 @@
 import React from 'react';
-import './App.css';
-import GameContainer from './components/Game/GameContainer';
+import GameContainer from './components/Game/GameContainer.tsx';
+import ErrorBoundary from './components/ErrorBoundary/ErrorBoundary.tsx';
+import styles from './App.module.css';
 
 function App() {
   return (
-    <div className="app">
-      <GameContainer />
-    </div>
+    <ErrorBoundary>
+      <div className={styles.app}>
+        <GameContainer />
+      </div>
+    </ErrorBoundary>
   );
 }
 
