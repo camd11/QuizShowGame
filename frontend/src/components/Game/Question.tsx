@@ -13,6 +13,12 @@ const Question: React.FC<QuestionProps> = ({ question, onAnswer, timeLimit = 30 
   const [timeLeft, setTimeLeft] = useState(timeLimit);
   const [startTime] = useState(Date.now());
 
+  // Reset state when question changes
+  useEffect(() => {
+    setSelectedOption(null);
+    setTimeLeft(timeLimit);
+  }, [question, timeLimit]);
+
   const handleAnswer = useCallback((optionIndex: number) => {
     const timeToAnswer = (Date.now() - startTime) / 1000;
     const answer: PlayerAnswer = {
