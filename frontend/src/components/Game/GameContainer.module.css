@@ -2,67 +2,125 @@
   max-width: 800px;
   margin: 0 auto;
   padding: 20px;
-  text-align: center;
 }
 
 .title {
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  color: #333;
+  text-align: center;
+  margin-bottom: 30px;
+  color: #2c3e50;
 }
 
 .status {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
-  font-size: 1.2rem;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .scoreInfo {
-  margin-top: 8px;
+  font-size: 1.2em;
+  color: #2c3e50;
 }
 
 .scoreInfo small {
-  font-size: 0.85rem;
-  color: #666;
-  font-style: italic;
+  font-size: 0.8em;
+  color: #6c757d;
 }
 
 .questionArea {
-  margin: 20px 0;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .error {
-  color: #d32f2f;
+  text-align: center;
+  color: #dc3545;
   padding: 20px;
-  border-radius: 4px;
-  background-color: #ffebee;
-  margin: 20px 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .gameOver {
   text-align: center;
-  padding: 40px 20px;
+  padding: 30px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .gameOver h2 {
-  font-size: 2rem;
+  color: #2c3e50;
   margin-bottom: 20px;
-  color: #333;
 }
 
 .button {
-  background-color: #1976d2;
+  background: #007bff;
   color: white;
   border: none;
   padding: 10px 20px;
   border-radius: 4px;
-  font-size: 1rem;
   cursor: pointer;
-  margin-top: 20px;
-  transition: background-color 0.3s;
+  font-size: 1em;
+  transition: background-color 0.2s;
+  margin-top: 15px;
 }
 
 .button:hover {
-  background-color: #1565c0;
+  background: #0056b3;
+}
+
+/* New multiplayer styles */
+.playerList {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.playerItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin: 5px 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.playerName {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.playerScore {
+  font-weight: bold;
+  color: #28a745;
+}
+
+.readyStatus {
+  font-size: 0.9em;
+  color: #6c757d;
+}
+
+.readyStatus.ready {
+  color: #28a745;
+}
+
+.gameCode {
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #6c757d;
+  margin: 10px 0;
+  padding: 10px;
+  background: #e9ecef;
+  border-radius: 4px;
 }

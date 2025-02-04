@@ -2,8 +2,9 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Question from './Question.tsx';
 import ErrorBoundary from '../ErrorBoundary/ErrorBoundary.tsx';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
-import { GameState, Question as QuestionType, PlayerAnswer } from '../../types/game.ts';
+import { GameState, Question as QuestionType, PlayerAnswer, GameEvent } from '../../types/game.ts';
 import { generateQuestionSet } from '../../services/questionService.ts';
+import { gameService } from '../../services/gameService.ts';
 import styles from './GameContainer.module.css';
 
 interface GameContainerState extends GameState {
@@ -12,11 +13,30 @@ interface GameContainerState extends GameState {
   error: string | null;
 }
 
-const GameContainer: React.FC = () => {
+interface Props {
+  mode?: 'host' | 'join';
+  gameCode?: string;
+}
+
+const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
+  const [playerId] = useState(() => crypto.randomUUID());
+  const [playerName] = useState(() => `Player ${Math.floor(Math.random() * 1000)}`);
+  const [isConnecting, setIsConnecting] = useState(true);
+  const [isInLobby, setIsInLobby] = useState(true);
+  
   const [gameState, setGameState] = useState<GameContainerState>({
     currentQuestion: 0,
-    score: 0,
+    players: {
+      [playerId]: {
+        id: playerId,
+        name: playerName,
+        score: 0,
+        isReady: true,
+        answers: []
+      }
+    },
     isGameOver: false,
+    hostId: playerId, // Single player mode, player is host
     questions: [],
     loading: true,
     error: null
@@ -42,8 +62,15 @@ const GameContainer: React.FC = () => {
         if (!signal?.aborted) {
           setGameState(prev => ({
             currentQuestion: 0,
-            score: 0,
+            players: {
+              [playerId]: {
+                ...prev.players[playerId],
+                score: 0,
+                answers: []
+              }
+            },
             isGameOver: false,
+            hostId: playerId,
             questions,
             loading: false,
             error: null
@@ -58,13 +85,79 @@ const GameContainer: React.FC = () => {
         loading: false
       }));
     }
-  }, [gameState.questions.length]);
+  }, [gameState.questions.length, playerId]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    loadQuestions(controller.signal);
-    return () => controller.abort();
-  }, [loadQuestions]);
+    const handleGameEvent = (event: GameEvent) => {
+      switch (event.type) {
+        case 'PLAYER_JOIN':
+          setGameState(prev => ({
+            ...prev,
+            players: {
+              ...prev.players,
+              [event.payload.playerId]: {
+                id: event.payload.playerId,
+                name: event.payload.name,
+                score: 0,
+                isReady: false,
+                answers: []
+              }
+            }
+          }));
+          break;
+        case 'PLAYER_READY':
+          setGameState(prev => ({
+            ...prev,
+            players: {
+              ...prev.players,
+              [event.payload.playerId]: {
+                ...prev.players[event.payload.playerId],
+                isReady: true
+              }
+            }
+          }));
+          break;
+        case 'GAME_START':
+          setIsInLobby(false);
+          loadQuestions();
+          break;
+      }
+    };
+
+    const initGame = async () => {
+      setIsConnecting(true);
+      try {
+        if (mode === 'host') {
+          await gameService.createTestGame();
+        } else {
+          await gameService.connect(gameCode);
+          gameService.joinGame(playerId, playerName);
+        }
+        gameService.addEventListener(handleGameEvent);
+        setIsConnecting(false);
+      } catch (error) {
+        console.error('Failed to initialize game:', error);
+        setGameState(prev => ({
+          ...prev,
+          error: 'Failed to connect to game. Please try again.'
+        }));
+        setIsConnecting(false);
+      }
+    };
+
+    initGame();
+
+    return () => {
+      gameService.disconnect();
+    };
+  }, [mode, gameCode, playerId, playerName, loadQuestions]);
+
+  useEffect(() => {
+    const allPlayersReady = Object.values(gameState.players).every(p => p.isReady);
+    if (allPlayersReady && Object.keys(gameState.players).length >= 2 && gameState.hostId === playerId) {
+      gameService.startGame(playerId);
+    }
+  }, [gameState.players, gameState.hostId, playerId]);
 
   const handleAnswer = useCallback((answer: PlayerAnswer) => {
     setGameState(prev => {
@@ -80,14 +173,23 @@ const GameContainer: React.FC = () => {
         points += Math.max(0, timeBonus); // Ensure bonus doesn't go negative
       }
 
+      const updatedPlayers = {
+        ...prev.players,
+        [playerId]: {
+          ...prev.players[playerId],
+          score: prev.players[playerId].score + points,
+          answers: [...prev.players[playerId].answers, answer]
+        }
+      };
+
       return {
         ...prev,
         currentQuestion: isLastQuestion ? prev.currentQuestion : prev.currentQuestion + 1,
-        score: prev.score + points,
+        players: updatedPlayers,
         isGameOver: isLastQuestion
       };
     });
-  }, []);
+  }, [playerId]);
 
   const resetGame = useCallback(async () => {
     setGameState(prev => ({
@@ -99,8 +201,17 @@ const GameContainer: React.FC = () => {
       const questions = await generateQuestionSet(5);
       setGameState({
         currentQuestion: 0,
-        score: 0,
+        players: {
+          [playerId]: {
+            id: playerId,
+            name: playerName,
+            score: 0,
+            isReady: true,
+            answers: []
+          }
+        },
         isGameOver: false,
+        hostId: playerId,
         questions,
         loading: false,
         error: null
@@ -112,25 +223,60 @@ const GameContainer: React.FC = () => {
         loading: false
       }));
     }
-  }, []);
+  }, [playerId, playerName]);
 
   return (
     <ErrorBoundary>
       <div className={styles.container}>
         <h1 className={styles.title}>Quiz Show Game</h1>
-        <div className={styles.status}>
-          <div>
-            <p>Question: {gameState.currentQuestion + 1} / {gameState.questions.length}</p>
-            <p className={styles.scoreInfo}>
-              Score: {gameState.score}
-              <br />
-              <small>
-                (Base: 1000 pts + Time Bonus: up to 500 pts)
-              </small>
-            </p>
+        {gameState.gameCode && (
+          <div className={styles.gameCode}>
+            Game Code: {gameState.gameCode}
           </div>
+        )}
+        <div className={styles.playerList}>
+          {Object.values(gameState.players).map(player => (
+            <div key={player.id} className={styles.playerItem}>
+              <span className={styles.playerName}>{player.name}</span>
+              <span className={styles.playerScore}>Score: {player.score}</span>
+              {isInLobby && (
+                <span className={`${styles.readyStatus} ${player.isReady ? styles.ready : ''}`}>
+                  {player.isReady ? 'Ready' : 'Not Ready'}
+                </span>
+              )}
+            </div>
+          ))}
         </div>
-        {gameState.loading ? (
+        {!isInLobby && (
+          <div className={styles.status}>
+            <div>
+              <p>Question: {gameState.currentQuestion + 1} / {gameState.questions.length}</p>
+              <p className={styles.scoreInfo}>
+                Your Score: {gameState.players[playerId]?.score || 0}
+                <br />
+                <small>
+                  (Base: 1000 pts + Time Bonus: up to 500 pts)
+                </small>
+              </p>
+            </div>
+          </div>
+        )}
+        {isConnecting ? (
+          <LoadingSpinner message="Connecting to game..." />
+        ) : isInLobby ? (
+          <div className={styles.lobby}>
+            <h2>Waiting for players...</h2>
+            <p>Need at least 2 players to start</p>
+            {!gameState.players[playerId]?.isReady && (
+              <button 
+                onClick={() => gameService.markReady(playerId)}
+                className={styles.button}
+              >
+                Mark as Ready
+              </button>
+            )}
+          </div>
+        ) : gameState.loading ? (
           <LoadingSpinner message="Loading questions..." />
         ) : gameState.error ? (
           <div className={styles.error}>
@@ -145,7 +291,7 @@ const GameContainer: React.FC = () => {
         ) : gameState.isGameOver ? (
           <div className={styles.gameOver}>
             <h2>Game Over!</h2>
-            <p>Final Score: {gameState.score}</p>
+            <p>Final Score: {gameState.players[playerId].score}</p>
             <button 
               onClick={resetGame}
               className={styles.button}
