@@ -23,6 +23,7 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
   const [playerName] = useState(() => `Player ${Math.floor(Math.random() * 1000)}`);
   const [isConnecting, setIsConnecting] = useState(true);
   const [isInLobby, setIsInLobby] = useState(true);
+  const [copySuccess, setCopySuccess] = useState(false);
   
   const [gameState, setGameState] = useState<GameContainerState>({
     currentQuestion: 0,
@@ -42,9 +43,20 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
     error: null
   });
 
+  const copyGameCode = useCallback(async () => {
+    if (gameState.gameCode) {
+      try {
+        await navigator.clipboard.writeText(gameState.gameCode);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy game code:', err);
+      }
+    }
+  }, [gameState.gameCode]);
+
   const loadQuestions = useCallback(async (signal?: AbortSignal) => {
     try {
-      // Only start loading if we don't already have questions
       if (gameState.questions.length === 0) {
         setGameState(prev => ({
           ...prev,
@@ -58,7 +70,6 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
           throw new Error('Failed to load all questions');
         }
         
-        // Only update state if the request wasn't aborted
         if (!signal?.aborted) {
           setGameState(prev => ({
             currentQuestion: 0,
@@ -127,12 +138,20 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
     const initGame = async () => {
       setIsConnecting(true);
       try {
-        if (mode === 'host') {
-          await gameService.createTestGame();
-        } else {
-          await gameService.connect(gameCode);
+        const session = mode === 'host' 
+          ? await gameService.createTestGame()
+          : await gameService.connect(gameCode);
+
+        setGameState(prev => ({
+          ...prev,
+          gameCode: session.gameCode,
+          hostId: session.hostId
+        }));
+
+        if (mode === 'join') {
           gameService.joinGame(playerId, playerName);
         }
+
         gameService.addEventListener(handleGameEvent);
         setIsConnecting(false);
       } catch (error) {
@@ -165,12 +184,9 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
       let points = 0;
       
       if (answer.isCorrect) {
-        // Base points for correct answer
         points = 1000;
-        
-        // Time-based bonus points (max 500 bonus at 0 seconds, 0 bonus at 30 seconds)
         const timeBonus = Math.round(500 * (1 - answer.timeToAnswer / 30));
-        points += Math.max(0, timeBonus); // Ensure bonus doesn't go negative
+        points += Math.max(0, timeBonus);
       }
 
       const updatedPlayers = {
@@ -230,8 +246,16 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
       <div className={styles.container}>
         <h1 className={styles.title}>Quiz Show Game</h1>
         {gameState.gameCode && (
-          <div className={styles.gameCode}>
-            Game Code: {gameState.gameCode}
+          <div className={styles.gameCodeContainer}>
+            <div className={styles.gameCode}>
+              Game Code: {gameState.gameCode}
+            </div>
+            <button 
+              onClick={copyGameCode}
+              className={`${styles.copyButton} ${copySuccess ? styles.copied : ''}`}
+            >
+              {copySuccess ? 'Copied!' : 'Copy Code'}
+            </button>
           </div>
         )}
         <div className={styles.playerList}>

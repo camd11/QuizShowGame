@@ -6,7 +6,7 @@ A multiplayer quiz show game in the style of You Don't Know Jack, using LLM for 
 
 ### Core Game Features
 - 5 questions per game with 30-second timer per question
-- Score tracking (1000 points per correct answer)
+- Score tracking (1000 points per correct answer + time bonus)
 - Answer explanations with 6-second display time
 - Smooth transitions between questions with animations
 - Loading states with spinner animation
@@ -25,6 +25,37 @@ A multiplayer quiz show game in the style of You Don't Know Jack, using LLM for 
   - Technology/Innovation
 - Witty explanations for correct answers
 - Dynamic content generation through OpenRouter API
+
+### Upcoming Multiplayer Features
+1. Host Experience:
+   - Full-screen display optimized for streaming
+   - Discord integration for screen sharing
+   - Player status and score overlays
+   - Game flow controls
+   - Built-in player simulation for testing
+
+2. Player Experience:
+   - Mobile-optimized interface
+   - Easy join process with game codes
+   - Touch-friendly answer buttons
+   - Real-time score updates
+   - Connection status indicators
+
+## How to Play
+
+### As a Host
+1. Start a new game session
+2. Share your screen in Discord
+3. Share the game code with players
+4. Use simulation tabs to test player experience
+5. Control game flow and monitor player status
+
+### As a Player
+1. Open the game on your mobile device
+2. Enter the game code from the host
+3. Wait for the game to start
+4. Answer questions using the touch interface
+5. Watch your score update in real-time
 
 ## Project Structure
 
@@ -58,8 +89,28 @@ A multiplayer quiz show game in the style of You Don't Know Jack, using LLM for 
    - Create an API key
    - This is required for question generation
 
+2. For Hosting:
+   - Discord installed
+   - Stable internet connection
+   - Screen resolution 1920x1080 or higher (recommended)
+   - Audio output properly configured
+
+3. For Playing:
+   - Modern mobile browser
+   - Stable internet connection
+   - Touch screen device
+   - Portrait orientation supported
+
 ## Setup Instructions
 
+### Prerequisites
+1. Node.js and npm installed
+2. OpenRouter API Key (for question generation)
+   - Sign up at https://openrouter.ai/
+   - Create an API key
+   - Add to backend/.env
+
+### Installation
 1. Install dependencies:
 ```bash
 # Install shared dependencies
@@ -101,59 +152,21 @@ cd frontend
 npm start
 ```
 
-## Current Implementation
+## Discord Setup Guide
 
-### Backend
-✅ Express server with TypeScript
-✅ OpenRouter API integration for question generation
-✅ Question caching with game session management
-✅ Proper error handling and validation
-✅ Environment variable configuration
-✅ CORS enabled for local development
+### For Hosts
+1. Create or join a Discord server
+2. Start a voice channel
+3. Click "Share Screen"
+4. Select the browser window with the game
+5. Enable "Stream Game Audio"
+6. Set quality to 1080p/60fps if available
 
-### Frontend
-✅ React with TypeScript
-✅ Component-based architecture
-✅ CSS Modules for styling
-✅ Loading states with spinner
-✅ Error boundaries
-✅ Timer functionality
-✅ Score tracking
-✅ Answer explanations with animations
-✅ Smooth question transitions
-✅ Responsive design
-
-### Shared
-✅ TypeScript implementation of API client
-✅ Shared type definitions
-✅ API configuration
-
-## API Documentation
-
-### Question Generation
-```
-POST /api/generate-question?gameId={gameId}
-Content-Type: application/json
-
-Request:
-{
-  "systemPrompt": string,  // You Don't Know Jack style prompt
-  "format": {
-    "text": string,       // Question text
-    "options": string[],  // 4 possible answers
-    "correctAnswer": number,  // Index (0-3)
-    "explanation": string    // Why answer is correct
-  }
-}
-
-Response:
-{
-  "text": string,
-  "options": string[],
-  "correctAnswer": number,
-  "explanation": string
-}
-```
+### Audio Setup
+1. Set Discord as default audio output
+2. Configure game volume in Discord
+3. Test audio with players
+4. Adjust based on feedback
 
 ## Troubleshooting
 
@@ -176,6 +189,18 @@ Response:
    # OR more specifically for the backend:
    killall -9 ts-node
    ```
+
+3. Mobile Device Issues:
+   - Enable screen rotation
+   - Clear browser cache
+   - Check internet connection
+   - Update browser if needed
+
+4. Discord Streaming Issues:
+   - Check internet bandwidth
+   - Lower stream quality if needed
+   - Verify audio routing
+   - Update Discord client
 
 ## License
 

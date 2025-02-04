@@ -10,6 +10,83 @@
   color: #2c3e50;
 }
 
+.gameCodeContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.gameCode {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #2c3e50;
+  letter-spacing: 2px;
+}
+
+.copyButton {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+}
+
+.copyButton:hover {
+  background: #0056b3;
+}
+
+.copyButton.copied {
+  background: #28a745;
+}
+
+.playerList {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.playerItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  margin: 5px 0;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.playerName {
+  font-weight: 500;
+  color: #2c3e50;
+}
+
+.playerScore {
+  font-weight: bold;
+  color: #28a745;
+}
+
+.readyStatus {
+  font-size: 0.9em;
+  color: #dc3545;
+  transition: color 0.2s ease;
+}
+
+.readyStatus.ready {
+  color: #28a745;
+}
+
 .status {
   display: flex;
   justify-content: space-between;
@@ -76,51 +153,20 @@
   background: #0056b3;
 }
 
-/* New multiplayer styles */
-.playerList {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.playerItem {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  margin: 5px 0;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.playerName {
-  font-weight: 500;
-  color: #2c3e50;
-}
-
-.playerScore {
-  font-weight: bold;
-  color: #28a745;
-}
-
-.readyStatus {
-  font-size: 0.9em;
-  color: #6c757d;
-}
-
-.readyStatus.ready {
-  color: #28a745;
-}
-
-.gameCode {
+.lobby {
   text-align: center;
-  font-size: 1.2em;
-  font-weight: bold;
+  padding: 30px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.lobby h2 {
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.lobby p {
   color: #6c757d;
-  margin: 10px 0;
-  padding: 10px;
-  background: #e9ecef;
-  border-radius: 4px;
+  margin-bottom: 20px;
 }

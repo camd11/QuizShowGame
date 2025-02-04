@@ -88,12 +88,21 @@
 ### Core Functionality
 - 5 questions per game
 - 30-second timer per question
-- Score tracking (1000 points per correct answer)
+- Score tracking (1000 points per correct answer + time bonus)
 - Answer explanations with 6-second display
 - Smooth transitions between questions
 - Loading states with spinner
 - Error handling with user feedback
 - Game over screen with final score
+
+### Multiplayer Features
+- Host or join games with unique game codes
+- Real-time player list updates
+- Player readiness system
+- Synchronized question progression
+- Live score tracking for all players
+- Game state synchronization
+- Support for multiple concurrent games
 
 ### Question Generation
 - LLM-powered questions in You Don't Know Jack style
@@ -167,6 +176,35 @@
    - Check for missing imports
    - Verify TypeScript configuration
 
+### Multiplayer Issues
+
+1. Game Code Not Working
+   ```
+   Error: Game not found
+   ```
+   Solution:
+   - Verify game code is entered correctly
+   - Check if host is still active
+   - Ensure game hasn't already started
+
+2. Player Synchronization
+   ```
+   Error: Failed to sync game state
+   ```
+   Solution:
+   - Check network connection
+   - Verify all players are on same game version
+   - Try rejoining the game
+
+3. Ready State Issues
+   ```
+   Error: Failed to update player status
+   ```
+   Solution:
+   - Check if host is still connected
+   - Try marking ready again
+   - Verify minimum player count (2) is met
+
 ## VSCode Setup
 
 1. Install recommended extensions:
@@ -201,7 +239,8 @@
 
 2. Start both servers (backend and frontend)
 3. Navigate to http://localhost:3000
-3. Verify:
+
+4. Test Single Player:
    - Questions load properly
    - Timer counts down from 30 seconds
    - Score updates for correct answers
@@ -210,6 +249,23 @@
    - Game progresses through 5 questions
    - Game over screen shows final score
    - Error states show user-friendly messages
+
+5. Test Multiplayer:
+   a. Host Game:
+      - Click "Host New Game"
+      - Verify game code is displayed
+      - Wait for simulated player to join
+      - Observe player readiness updates
+      - Game starts when all players ready
+      - Verify score synchronization
+   
+   b. Join Game:
+      - Click "Join Game"
+      - Enter valid game code
+      - Verify player list updates
+      - Mark as ready when prompted
+      - Verify synchronized progression
+      - Check real-time score updates
 
 ### Automated Testing (To Be Implemented)
 1. Kill any existing Node.js processes:
