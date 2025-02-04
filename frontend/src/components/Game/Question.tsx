@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Question as QuestionType, PlayerAnswer } from '../../types/game';
+import { soundService } from '../../services/soundService.ts';
 import styles from './Question.module.css';
 
 interface QuestionProps {
@@ -31,12 +32,20 @@ const Question: React.FC<QuestionProps> = ({ question, onAnswer, timeLimit = 30 
   const handleAnswer = useCallback((optionIndex: number) => {
     if (isAnswered) return;
 
+    const isCorrect = optionIndex === question.correctAnswer;
     const answer: PlayerAnswer = {
       questionId: question.id,
       selectedOption: optionIndex,
-      isCorrect: optionIndex === question.correctAnswer,
+      isCorrect,
       timeToAnswer: (Date.now() - startTime) / 1000
     };
+
+    // Play the appropriate sound
+    if (isCorrect) {
+      soundService.playCorrect();
+    } else {
+      soundService.playIncorrect();
+    }
 
     setCurrentAnswer(answer);
     setIsAnswered(true);

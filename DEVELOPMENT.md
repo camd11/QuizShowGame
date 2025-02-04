@@ -14,13 +14,17 @@
 Current frontend features:
 1. 5-question game format
 2. 30-second timer per question
-3. Score tracking (1000 points per correct answer)
-4. Answer explanations with 6-second display
-5. Smooth question transitions with animations
-6. Loading states with spinner
-7. Error handling with user feedback
-8. Game over screen with final score
-9. Responsive design with CSS Modules
+3. Score tracking with time-based bonus:
+   - Base: 1000 points per correct answer
+   - Time bonus: Up to 500 points based on speed
+   - Formula: bonus = 500 * (1 - timeToAnswer/30)
+4. Sound effects for correct/incorrect answers
+5. Answer explanations with 6-second display
+6. Smooth question transitions with animations
+7. Loading states with spinner
+8. Error handling with user feedback
+9. Game over screen with final score
+10. Responsive design with CSS Modules
 
 ### Backend Status
 - ✅ Express server with TypeScript
@@ -100,12 +104,20 @@ interface QuestionResponse {
 ## Build and Development Process
 
 ### Development Workflow
-1. Get OpenRouter API Key:
+1. Kill any existing Node.js processes:
+   ```bash
+   # On Linux/Mac
+   killall node    # Stops all Node.js processes
+   # OR more specifically:
+   killall -9 ts-node
+   ```
+
+2. Get OpenRouter API Key:
    - Sign up at https://openrouter.ai/
    - Create an API key
    - Add key to backend/.env
 
-2. Start backend server:
+3. Start backend server:
    ```bash
    cd backend
    npm install

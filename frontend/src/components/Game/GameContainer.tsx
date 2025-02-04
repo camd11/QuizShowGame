@@ -69,10 +69,21 @@ const GameContainer: React.FC = () => {
   const handleAnswer = useCallback((answer: PlayerAnswer) => {
     setGameState(prev => {
       const isLastQuestion = prev.currentQuestion === prev.questions.length - 1;
+      let points = 0;
+      
+      if (answer.isCorrect) {
+        // Base points for correct answer
+        points = 1000;
+        
+        // Time-based bonus points (max 500 bonus at 0 seconds, 0 bonus at 30 seconds)
+        const timeBonus = Math.round(500 * (1 - answer.timeToAnswer / 30));
+        points += Math.max(0, timeBonus); // Ensure bonus doesn't go negative
+      }
+
       return {
         ...prev,
         currentQuestion: isLastQuestion ? prev.currentQuestion : prev.currentQuestion + 1,
-        score: prev.score + (answer.isCorrect ? 1000 : 0),
+        score: prev.score + points,
         isGameOver: isLastQuestion
       };
     });
@@ -108,8 +119,16 @@ const GameContainer: React.FC = () => {
       <div className={styles.container}>
         <h1 className={styles.title}>Quiz Show Game</h1>
         <div className={styles.status}>
-          <p>Question: {gameState.currentQuestion + 1} / {gameState.questions.length}</p>
-          <p>Score: {gameState.score}</p>
+          <div>
+            <p>Question: {gameState.currentQuestion + 1} / {gameState.questions.length}</p>
+            <p className={styles.scoreInfo}>
+              Score: {gameState.score}
+              <br />
+              <small>
+                (Base: 1000 pts + Time Bonus: up to 500 pts)
+              </small>
+            </p>
+          </div>
         </div>
         {gameState.loading ? (
           <LoadingSpinner message="Loading questions..." />
