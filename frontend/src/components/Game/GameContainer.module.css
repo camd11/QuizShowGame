@@ -1,86 +1,82 @@
 .container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem;
   max-width: 800px;
   margin: 0 auto;
-  padding: 20px;
 }
 
 .title {
-  text-align: center;
-  margin-bottom: 30px;
+  font-size: 2.5rem;
   color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
 .gameCodeContainer {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8f9fa;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background-color: #f8f9fa;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .gameCode {
-  font-size: 1.2em;
+  font-size: 1.2rem;
   font-weight: bold;
   color: #2c3e50;
-  letter-spacing: 2px;
 }
 
 .copyButton {
-  background: #007bff;
+  padding: 0.5rem 1rem;
+  background-color: #007bff;
   color: white;
   border: none;
-  padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
-  font-size: 0.9em;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s;
 }
 
 .copyButton:hover {
-  background: #0056b3;
+  background-color: #0056b3;
 }
 
 .copyButton.copied {
-  background: #28a745;
+  background-color: #28a745;
 }
 
 .playerList {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
 .playerItem {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
-  margin: 5px 0;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
 }
 
 .playerName {
-  font-weight: 500;
+  font-weight: bold;
   color: #2c3e50;
 }
 
 .playerScore {
-  font-weight: bold;
-  color: #28a745;
+  color: #6c757d;
 }
 
 .readyStatus {
-  font-size: 0.9em;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
   color: #dc3545;
-  transition: color 0.2s ease;
 }
 
 .readyStatus.ready {
@@ -88,85 +84,47 @@
 }
 
 .status {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 .scoreInfo {
-  font-size: 1.2em;
-  color: #2c3e50;
-}
-
-.scoreInfo small {
-  font-size: 0.8em;
   color: #6c757d;
-}
-
-.questionArea {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.error {
-  text-align: center;
-  color: #dc3545;
-  padding: 20px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.gameOver {
-  text-align: center;
-  padding: 30px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.gameOver h2 {
-  color: #2c3e50;
-  margin-bottom: 20px;
-}
-
-.button {
-  background: #007bff;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1em;
-  transition: background-color 0.2s;
-  margin-top: 15px;
-}
-
-.button:hover {
-  background: #0056b3;
+  font-size: 0.9rem;
 }
 
 .lobby {
   text-align: center;
-  padding: 30px;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 }
 
-.lobby h2 {
-  color: #2c3e50;
-  margin-bottom: 10px;
+.button {
+  padding: 0.75rem 1.5rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
 }
 
-.lobby p {
-  color: #6c757d;
-  margin-bottom: 20px;
+.button:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: #dc3545;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.gameOver {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.questionArea {
+  width: 100%;
 }

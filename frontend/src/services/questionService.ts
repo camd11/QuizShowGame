@@ -47,19 +47,45 @@ export async function generateQuestion(gameId: string): Promise<Question> {
   };
 }
 
-export async function generateQuestionSet(count: number = 5): Promise<Question[]> {
-  // Generate a unique game ID
-  const gameId = Date.now().toString();
-  
-  // Get first question to trigger generation of full set
-  const firstQuestion = await generateQuestion(gameId);
-  
-  // Get remaining questions one at a time
-  const questions = [firstQuestion];
-  for (let i = 1; i < count; i++) {
-    const question = await generateQuestion(gameId);
-    questions.push(question);
+const MOCK_QUESTIONS: Question[] = [
+  {
+    id: '1',
+    text: 'What is the capital of France?',
+    options: ['London', 'Berlin', 'Paris', 'Madrid'],
+    correctAnswer: 2,
+    explanation: 'Paris is the capital and largest city of France.'
+  },
+  {
+    id: '2',
+    text: 'Which planet is known as the Red Planet?',
+    options: ['Venus', 'Mars', 'Jupiter', 'Saturn'],
+    correctAnswer: 1,
+    explanation: 'Mars appears red due to iron oxide (rust) on its surface.'
+  },
+  {
+    id: '3',
+    text: 'Who painted the Mona Lisa?',
+    options: ['Vincent van Gogh', 'Pablo Picasso', 'Leonardo da Vinci', 'Michelangelo'],
+    correctAnswer: 2,
+    explanation: 'Leonardo da Vinci painted the Mona Lisa between 1503 and 1519.'
+  },
+  {
+    id: '4',
+    text: 'What is the largest mammal in the world?',
+    options: ['African Elephant', 'Blue Whale', 'Giraffe', 'Hippopotamus'],
+    correctAnswer: 1,
+    explanation: 'The Blue Whale is the largest animal known to have ever existed.'
+  },
+  {
+    id: '5',
+    text: 'Which element has the chemical symbol Au?',
+    options: ['Silver', 'Copper', 'Gold', 'Aluminum'],
+    correctAnswer: 2,
+    explanation: 'Au comes from the Latin word for gold, "aurum".'
   }
-  
-  return questions;
+];
+
+export async function generateQuestionSet(count: number = 5): Promise<Question[]> {
+  // For testing, just return mock questions immediately
+  return MOCK_QUESTIONS;
 }

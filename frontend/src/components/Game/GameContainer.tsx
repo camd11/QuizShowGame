@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import Question from './Question.tsx';
 import ErrorBoundary from '../ErrorBoundary/ErrorBoundary.tsx';
 import LoadingSpinner from '../LoadingSpinner/LoadingSpinner.tsx';
+import { HostContainer } from '../Host/HostContainer.tsx';
 import { GameState, Question as QuestionType, PlayerAnswer, GameEvent } from '../../types/game.ts';
 import { generateQuestionSet } from '../../services/questionService.ts';
 import { gameService } from '../../services/gameService.ts';
@@ -32,14 +33,14 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
         id: playerId,
         name: playerName,
         score: 0,
-        isReady: true,
+        isReady: false, // Start as not ready
         answers: []
       }
     },
     isGameOver: false,
-    hostId: playerId, // Single player mode, player is host
+    hostId: playerId,
     questions: [],
-    loading: true,
+    loading: false, // Start as not loading
     error: null
   });
 
@@ -55,39 +56,31 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
     }
   }, [gameState.gameCode]);
 
-  const loadQuestions = useCallback(async (signal?: AbortSignal) => {
+  const loadQuestions = useCallback(async () => {
     try {
-      if (gameState.questions.length === 0) {
-        setGameState(prev => ({
-          ...prev,
-          loading: true,
-          error: null
-        }));
-        
-        const questions = await generateQuestionSet(5);
-        
-        if (!questions || questions.length !== 5) {
-          throw new Error('Failed to load all questions');
-        }
-        
-        if (!signal?.aborted) {
-          setGameState(prev => ({
-            currentQuestion: 0,
-            players: {
-              [playerId]: {
-                ...prev.players[playerId],
-                score: 0,
-                answers: []
-              }
-            },
-            isGameOver: false,
-            hostId: playerId,
-            questions,
-            loading: false,
-            error: null
-          }));
-        }
+      const questions = await generateQuestionSet(5);
+      
+      if (!questions || questions.length !== 5) {
+        throw new Error('Failed to load all questions');
       }
+      
+      setGameState(prev => ({
+        ...prev,
+        currentQuestion: 0,
+        questions,
+        loading: false,
+        error: null,
+        players: Object.entries(prev.players).reduce((acc, [id, player]) => ({
+          ...acc,
+          [id]: {
+            ...player,
+            score: 0,
+            answers: []
+          }
+        }), {})
+      }));
+
+      return true;
     } catch (error) {
       console.error('Error loading questions:', error);
       setGameState(prev => ({
@@ -95,45 +88,67 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
         error: 'Failed to load questions. Please try again.',
         loading: false
       }));
+      return false;
     }
-  }, [gameState.questions.length, playerId]);
+  }, []);
+
+  const handleGameEvent = useCallback((event: GameEvent) => {
+    switch (event.type) {
+      case 'PLAYER_JOIN':
+        setGameState(prev => ({
+          ...prev,
+          players: {
+            ...prev.players,
+            [event.payload.playerId]: {
+              id: event.payload.playerId,
+              name: event.payload.name,
+              score: 0,
+              isReady: false,
+              answers: []
+            }
+          }
+        }));
+        break;
+      case 'PLAYER_READY':
+        setGameState(prev => ({
+          ...prev,
+          players: {
+            ...prev.players,
+            [event.payload.playerId]: {
+              ...prev.players[event.payload.playerId],
+              isReady: true
+            }
+          }
+        }));
+        break;
+      case 'GAME_START':
+        setGameState(prev => ({ ...prev, loading: true }));
+        loadQuestions().then(success => {
+          if (success) {
+            setIsInLobby(false);
+          }
+        }).catch(error => {
+          console.error('Failed to load questions:', error);
+          setGameState(prev => ({
+            ...prev,
+            loading: false,
+            error: 'Failed to load questions. Please try again.'
+          }));
+        });
+        break;
+      case 'PLAYER_LEAVE':
+        setGameState(prev => {
+          const { [event.payload.playerId]: removedPlayer, ...remainingPlayers } = prev.players;
+          return {
+            ...prev,
+            players: remainingPlayers
+          };
+        });
+        break;
+    }
+  }, [loadQuestions, setIsInLobby]);
 
   useEffect(() => {
-    const handleGameEvent = (event: GameEvent) => {
-      switch (event.type) {
-        case 'PLAYER_JOIN':
-          setGameState(prev => ({
-            ...prev,
-            players: {
-              ...prev.players,
-              [event.payload.playerId]: {
-                id: event.payload.playerId,
-                name: event.payload.name,
-                score: 0,
-                isReady: false,
-                answers: []
-              }
-            }
-          }));
-          break;
-        case 'PLAYER_READY':
-          setGameState(prev => ({
-            ...prev,
-            players: {
-              ...prev.players,
-              [event.payload.playerId]: {
-                ...prev.players[event.payload.playerId],
-                isReady: true
-              }
-            }
-          }));
-          break;
-        case 'GAME_START':
-          setIsInLobby(false);
-          loadQuestions();
-          break;
-      }
-    };
 
     const initGame = async () => {
       setIsConnecting(true);
@@ -148,7 +163,10 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
           hostId: session.hostId
         }));
 
-        if (mode === 'join') {
+        // Always mark host as ready in host mode
+        if (mode === 'host') {
+          gameService.markReady(playerId);
+        } else if (mode === 'join') {
           gameService.joinGame(playerId, playerName);
         }
 
@@ -169,14 +187,19 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
     return () => {
       gameService.disconnect();
     };
-  }, [mode, gameCode, playerId, playerName, loadQuestions]);
+  }, [mode, gameCode, playerId, playerName, loadQuestions, handleGameEvent]);
 
   useEffect(() => {
-    const allPlayersReady = Object.values(gameState.players).every(p => p.isReady);
-    if (allPlayersReady && Object.keys(gameState.players).length >= 2 && gameState.hostId === playerId) {
-      gameService.startGame(playerId);
+    if (mode === 'host') {
+      const allPlayersReady = Object.values(gameState.players).every(p => p.isReady);
+      const hasEnoughPlayers = Object.keys(gameState.players).length >= 2;
+      const isNotLoading = !gameState.loading;
+      
+      if (allPlayersReady && hasEnoughPlayers && isNotLoading && isInLobby) {
+        gameService.startGame(playerId);
+      }
     }
-  }, [gameState.players, gameState.hostId, playerId]);
+  }, [gameState.players, mode, playerId, gameState.loading, isInLobby]);
 
   const handleAnswer = useCallback((answer: PlayerAnswer) => {
     setGameState(prev => {
@@ -241,6 +264,46 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
     }
   }, [playerId, playerName]);
 
+  if (gameState.loading) {
+    return <LoadingSpinner message="Loading questions..." />;
+  }
+
+  if (mode === 'host' && gameState.questions.length > 0 && !isInLobby) {
+    return (
+      <ErrorBoundary>
+        <HostContainer
+          gameState={gameState}
+          questions={gameState.questions}
+          onPlayerJoin={(name) => {
+            const newPlayerId = crypto.randomUUID();
+            gameService.joinGame(newPlayerId, name);
+          }}
+          onPlayerLeave={(playerId) => {
+            gameService.removePlayer(playerId);
+          }}
+          onPlayerAnswer={(playerId, selectedOption) => {
+            const question = gameState.questions[gameState.currentQuestion];
+            const answer: PlayerAnswer = {
+              questionId: question.id,
+              selectedOption,
+              isCorrect: selectedOption === question.correctAnswer,
+              timeToAnswer: 15 // Simulated time for testing
+            };
+            handleAnswer(answer);
+          }}
+          onNextQuestion={() => {
+            if (!gameState.isGameOver) {
+              setGameState(prev => ({
+                ...prev,
+                currentQuestion: prev.currentQuestion + 1
+              }));
+            }
+          }}
+        />
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <div className={styles.container}>
@@ -287,6 +350,8 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
         )}
         {isConnecting ? (
           <LoadingSpinner message="Connecting to game..." />
+        ) : gameState.loading ? (
+          <LoadingSpinner message="Loading questions..." />
         ) : isInLobby ? (
           <div className={styles.lobby}>
             <h2>Waiting for players...</h2>
@@ -300,8 +365,6 @@ const GameContainer: React.FC<Props> = ({ mode = 'host', gameCode }) => {
               </button>
             )}
           </div>
-        ) : gameState.loading ? (
-          <LoadingSpinner message="Loading questions..." />
         ) : gameState.error ? (
           <div className={styles.error}>
             {gameState.error}
